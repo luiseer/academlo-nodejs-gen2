@@ -5,7 +5,21 @@ const users = [
 ];
 
 // Get all users
+
+exports.getAllUsers = (req, res) => {
+	res.status(200).json({
+		status: 'success',
+		data: {users}
+	})
+}
+
 // Get user by ID
+
+exports.getUserById = (req, res) => {
+
+}
+
+
 // Save new user
 // Update user (patch)
 // Delete user
