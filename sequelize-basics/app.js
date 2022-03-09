@@ -4,6 +4,8 @@ const express = require('express');
 const { postsRouter } = require('./routes/posts.routes');
 const { usersRouter } = require('./routes/users.routes');
 const { commentsRouter } = require('./routes/comment.routes');
+const { globalErrorHandler } = require('./controllers/error.controller');
+const { AppError } = require('./util/appError');
 
 // Init express app
 const app = express();
@@ -16,13 +18,16 @@ app.use('/api/v1/posts', postsRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/comments', commentsRouter);
 
-app.use((err, req, res, next) => {
-  res.status(err.statusCode).json({
-    message: err.message
-  });
-});
+app.use('*', (req, res, next) => {
+  next(
+    new AppError(404, `${req.originalUrl} not found in this server`)
+  )
+})
 
-module.exports = { app };
+//app err
+app.use(globalErrorHandler)
+
+module.exports = { app }
 
 // Http status codes examples:
 // 2** -> success

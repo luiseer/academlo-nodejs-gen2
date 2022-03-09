@@ -3,60 +3,58 @@ const { Post } = require('../models/post.model');
 
 // Utils
 const { filterObj } = require('../util/filterObj');
+const { AppError } = require('../util/appError');
+const { catchAsync } = require('../util/catchAsync');
 
 // Get all posts
 // export const getAllPosts
-exports.getAllPosts = async (req, res) => {
-  try {
+exports.getAllPosts = catchAsync (async (req, res, next) => {
+  
     // SELECT * FROM posts WHERE status = 'active'; -> posts[]
-    const posts = await Post.findAll({ where: { status: 'active' } });
-
+    const posts = await Post.findAll({ 
+      where: { status: 'active' } 
+    });
     res.status(200).json({
       status: 'success',
       data: {
         posts
       }
     });
-  } catch (error) {
-    console.log(error);
-  }
-};
+});
 
 // Get post by id
-exports.getPostById = async (req, res) => {
-  try {
+exports.getPostById = catchAsync( async (req, res,next) => {
+
     const { id } = req.params;
 
     // SELECT * FROM posts WHERE id = 1;
     const post = await Post.findOne({
-      where: { id: id, status: 'active' }
+      where: { id, status: 'active' }
     });
-
     if (!post) {
-      res.status(404).json({
-        status: 'error',
-        message: 'No post found with the given ID'
-      });
-      return;
+      return next(new AppError(404, 'Post no Found'))
     }
-
     res.status(200).json({
       status: 'success',
       data: {
         post
       }
     });
-  } catch (error) {
-    console.log(error);
-  }
-};
+});
 
 // Save post to database
-exports.createPost = async (req, res) => {
-  try {
+exports.createPost = catchAsync( async (req, res, next) => {
+  
     const { title, content, userId } = req.body;
 
     // INSERT INTO posts (title, content, userId) VALUES ('A new post', 'Saved in db', 1)
+
+    if (!title || !content || !userId) {
+      return next(
+        new AppError(400, 'Must provider valid title, content & user ID')
+      )
+    }
+    
     const newPost = await Post.create({
       title: title, // dbColumn: valueToInsert
       content: content,
@@ -67,13 +65,10 @@ exports.createPost = async (req, res) => {
       status: 'success',
       data: { newPost }
     });
-  } catch (error) {
-    console.log(error);
-  }
-};
+});
 
 // Update post (put)
-exports.updatePostPut = async (req, res) => {
+exports.updatePostPut = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { title, content, author } = req.body;
