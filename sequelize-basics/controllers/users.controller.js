@@ -1,3 +1,6 @@
+//library
+const bcrypt = require('bcryptjs')
+
 // Models
 const { User } = require('../models/user.model');
 const { Post } = require('../models/post.model');
@@ -59,15 +62,40 @@ exports.createNewUser = catchAsync(async (req, res) => {
     );
   }
 
+  //alogorithm(pass1234) -> ñldfsigjñkjsdfghflaiusklifjoiwel
+  const salt = await bcrypt.genSalt(12)
+  const hasPassword = await bcrypt.hash(password, salt)
+
   // MUST ENCRYPT PASSWORD
   const newUser = await User.create({
     name,
     email,
-    password
+    password: hasPassword
   });
 
-  res.status(201).json({
-    status: 'success',
-    data: { newUser }
-  });
+  newUser.password = undefined
+  
+  exports.createUser = catchAsync(async (req, res, next) => {
+    console.log('log')
+  })
+  
+  
+  exports.loginUser = catchAsync(async (req, res, next) => {
+    const { email, password } = req.body
+    // find user
+    const user = await User.findOne({
+      where: {email, status: 'active'}
+    })
+    if (!(await bcrypt.compare(password, user.password)) || !user) {
+      return next (new AppError(400, 'Credential Invalid'))
+    }
+  })
+  
+  
+    res.status(201).json({
+      status: 'success',
+      data: { newUser }
+    });
+
+
 });
