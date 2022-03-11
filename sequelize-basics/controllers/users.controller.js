@@ -1,5 +1,7 @@
 //library
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 
 // Models
 const { User } = require('../models/user.model');
@@ -10,6 +12,8 @@ const { Comment } = require('../models/comment.model');
 const { filterObj } = require('../util/filterObj');
 const { catchAsync } = require('../util/catchAsync');
 const { AppError } = require('../util/appError');
+
+dotenv
 
 // Get all users
 exports.getAllUsers = catchAsync(async (req, res, next) => {
@@ -73,29 +77,44 @@ exports.createNewUser = catchAsync(async (req, res) => {
     password: hasPassword
   });
 
+  //remove password
   newUser.password = undefined
-  
-  exports.createUser = catchAsync(async (req, res, next) => {
-    console.log('log')
-  })
-  
-  
-  exports.loginUser = catchAsync(async (req, res, next) => {
-    const { email, password } = req.body
-    // find user
-    const user = await User.findOne({
-      where: {email, status: 'active'}
-    })
-    if (!(await bcrypt.compare(password, user.password)) || !user) {
-      return next (new AppError(400, 'Credential Invalid'))
-    }
-  })
-  
-  
-    res.status(201).json({
-      status: 'success',
-      data: { newUser }
-    });
+
+  res.status(200).json({
+    status: 'success',
+    data: { newUser }
+  });
+
+})
 
 
-});
+exports.loginUser = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body
+  // find user
+  const user = await User.findOne({
+    where: { email, status: 'active' }
+  })
+  if (!(await bcrypt.compare(password, user.password)) || !user) {
+    return next(new AppError(400, 'Credential Invalid'))
+  }
+  //create token
+  jwt.sign({id: user.id}, process.env.JWT_SECRET,{
+    noTimestamp  
+  } )
+
+
+  res.status(200).json({
+    status: 'success'
+  });
+})
+
+  //Generar credential validates user sesion (token)
+  //validate session
+  //Garant accsess a certin parts of our API
+  //Restric access
+
+
+
+
+
+

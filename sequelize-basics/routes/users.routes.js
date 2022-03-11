@@ -1,12 +1,17 @@
+const jwt = require('jsonwebtoken')
 const express = require('express');
+
 
 // Controllers
 const {
   getAllUsers,
   getUserById,
   createNewUser,
-  createUser
 } = require('../controllers/users.controller');
+
+//middleswares
+
+const  middleswares = require('../middlewares/auth.middleware')
 
 const router = express.Router();
 
@@ -16,6 +21,6 @@ router.get('/:id', getUserById);
 
 router.post('/', createNewUser);
 
-router.post('/', createUser);
+
 
 module.exports = { usersRouter: router };

@@ -5,7 +5,6 @@ const { postsRouter } = require('./routes/posts.routes');
 const { usersRouter } = require('./routes/users.routes');
 const { commentsRouter } = require('./routes/comment.routes');
 const { globalErrorHandler } = require('./controllers/error.controller');
-const { AppError } = require('./util/appError');
 
 // Init express app
 const app = express();
@@ -17,6 +16,8 @@ app.use(express.json());
 app.use('/api/v1/posts', postsRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/comments', commentsRouter);
+
+const { AppError } = require('./util/appError');
 
 app.use('*', (req, res, next) => {
   next(
