@@ -5,6 +5,10 @@ const { Post } = require('../models/post.model');
 const { filterObj } = require('../util/filterObj');
 const { catchAsync } = require('../util/catchAsync');
 const { AppError } = require('../util/appError');
+const { storage } = require('../util/firabase');
+const { ref, uploadBytes } = require('firebase/storage');
+
+
 
 // Get all posts
 // export const getAllPosts
